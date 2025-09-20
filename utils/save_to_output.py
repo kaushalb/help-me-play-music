@@ -15,28 +15,48 @@ def format_time(seconds):
     return f"{minutes:02d}:{secs:02d}.{milliseconds:03d}"
 
 def create_chord_timeline(results):
-    """Create a visual timeline representation of chord progression."""
+    """Create a visual timeline representation of chord progression with proportional durations."""
     if not results or not results['progression']:
         return "No chord progression detected."
     
-    # Create a continuous timeline with | for chord changes and - for duration
+    # Calculate proportional durations
+    total_duration = results['total_duration']
+    max_width = 80  # Maximum timeline width
+    min_dashes = 2  # Minimum dashes per chord for readability
+    
+    # Calculate dash counts proportional to duration
     timeline_line = "|"
     chord_labels = []
+    label_positions = []
     
-    for i, chord_info in enumerate(results['progression']):
-        # Calculate relative duration (simple approach: use 5 dashes per chord for now)
-        # You could make this proportional to actual duration if needed
-        duration_dashes = "-----"
+    for chord_info in results['progression']:
+        # Calculate proportional width (minimum 2 dashes)
+        proportion = chord_info['duration'] / total_duration
+        dash_count = max(min_dashes, int(proportion * max_width))
+        
+        # Create dashes for this chord
+        duration_dashes = "-" * dash_count
         timeline_line += duration_dashes + "|"
+        
+        # Store chord and calculate center position for label
         chord_labels.append(chord_info['chord'])
+        label_positions.append(len(timeline_line) - dash_count // 2 - 1)
     
-    # Create the chord labels line, spaced to align with timeline
-    chord_line = ""
-    for i, chord in enumerate(chord_labels):
-        if i == 0:
-            chord_line += f"{chord:^6}"  # Center chord name in 6 characters (5 dashes + 1 |)
-        else:
-            chord_line += f"{chord:^6}"
+    # Create the chord labels line with proper spacing
+    chord_line = " " * len(timeline_line)
+    chord_line = list(chord_line)  # Convert to list for easier manipulation
+    
+    for i, (chord, pos) in enumerate(zip(chord_labels, label_positions)):
+        # Center the chord name at the calculated position
+        start_pos = max(0, pos - len(chord) // 2)
+        end_pos = min(len(chord_line), start_pos + len(chord))
+        
+        # Place chord name, ensuring it doesn't go out of bounds
+        for j, char in enumerate(chord):
+            if start_pos + j < len(chord_line):
+                chord_line[start_pos + j] = char
+    
+    chord_line = "".join(chord_line).rstrip()
     
     return f"{timeline_line}\n{chord_line}"
 
