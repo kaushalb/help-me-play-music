@@ -1,6 +1,6 @@
 # MP3 Chord Detection Script
 
-A Python script that analyzes MP3 audio files to extract chord progressions using chromagram analysis and template matching.
+A Python script that analyzes MP3 audio files and live audio recordings to extract chord progressions using chromagram analysis and template matching.
 
 ## Features
 
@@ -8,6 +8,8 @@ A Python script that analyzes MP3 audio files to extract chord progressions usin
 - **Timing Information**: Provides start/end times and duration for each chord with millisecond precision
 - **Chord Statistics**: Shows frequency analysis of detected chords
 - **Multiple Audio Formats**: Supports MP3, WAV, FLAC, and M4A files
+- **Live Audio Recording**: Record and analyze audio directly from your microphone
+- **Interactive Mode**: Choose between file input or live recording when no arguments provided
 - **File Output**: Save results to text files with custom timeline visualization
 - **Visual Timeline**: ASCII-based chord progression timeline using `|` and `-` characters
 - **Clean Output**: Formatted results with progression timeline and statistics
@@ -41,6 +43,15 @@ python music-script.py path/to/your/audio/file.mp3 --save --output my-results.tx
 
 # Short form
 python music-script.py path/to/your/audio/file.mp3 -s -o my-results.txt
+```
+
+### Live Audio Recording
+```bash
+# Record live audio from microphone
+python music-script.py --live
+
+# Interactive mode (choose file or live recording)
+python music-script.py
 ```
 
 ## How It Works
@@ -132,9 +143,35 @@ G   :  25.0% (30 frames)
 - **Chord Templates**: Based on chromagram patterns for major/minor triads
 - **Smoothing Window**: 5 frames to reduce temporal noise
 
+## Project Structure
+
+```
+help-me-play-music/
+├── music-script.py          # Main script with CLI interface
+├── ChordDetector.py         # Core chord detection class
+├── utils/                   # Utility modules
+│   ├── __init__.py
+│   └── save_to_output.py    # Output formatting functions
+├── live_recordings/         # Directory for saved live recordings
+├── requirements.txt         # Python dependencies
+├── chord-output.txt         # Default output file (generated)
+└── README.md               # This file
+```
+
+## Live Recording Features
+
+When using live recording mode:
+- Press 'q' and Enter to stop recording
+- Recordings are automatically saved to `live_recordings/` directory
+- Files are named with timestamps: `live_recording_[timestamp].wav`
+- Same chord analysis is applied to live recordings as audio files
+- Interactive prompts guide you through the process
+
 ## Requirements
 
 - Python 3.7+
 - librosa 0.10.0+
 - numpy 1.21.0+
 - scipy 1.7.0+
+- sounddevice 0.4.0+ (for live recording)
+- keyboard 0.13.5+ (for live recording controls)
