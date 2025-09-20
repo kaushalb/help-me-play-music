@@ -182,10 +182,12 @@ class ChordDetector:
         }
 
 def format_time(seconds):
-    """Format time in MM:SS format."""
+    """Format time in MM:SS.mmm format with milliseconds."""
     minutes = int(seconds // 60)
-    seconds = int(seconds % 60)
-    return f"{minutes:02d}:{seconds:02d}"
+    remaining_seconds = seconds % 60
+    secs = int(remaining_seconds)
+    milliseconds = int((remaining_seconds - secs) * 1000)
+    return f"{minutes:02d}:{secs:02d}.{milliseconds:03d}"
 
 def print_analysis_results(results, file_path):
     """Print the chord analysis results in a formatted way."""
