@@ -5,9 +5,11 @@ A Python script that analyzes MP3 audio files to extract chord progressions usin
 ## Features
 
 - **Chord Detection**: Identifies major and minor chords (C, C#, D, D#, E, F, F#, G, G#, A, A#, B and their minor variants)
-- **Timing Information**: Provides start/end times and duration for each chord
+- **Timing Information**: Provides start/end times and duration for each chord with millisecond precision
 - **Chord Statistics**: Shows frequency analysis of detected chords
 - **Multiple Audio Formats**: Supports MP3, WAV, FLAC, and M4A files
+- **File Output**: Save results to text files with custom timeline visualization
+- **Visual Timeline**: ASCII-based chord progression timeline using `|` and `-` characters
 - **Clean Output**: Formatted results with progression timeline and statistics
 
 ## Installation
@@ -29,6 +31,18 @@ python music-script.py path/to/your/audio/file.mp3
 python music-script.py path/to/your/audio/file.mp3 --verbose
 ```
 
+### Save Results to File
+```bash
+# Save to default chord-output.txt
+python music-script.py path/to/your/audio/file.mp3 --save
+
+# Save to custom file
+python music-script.py path/to/your/audio/file.mp3 --save --output my-results.txt
+
+# Short form
+python music-script.py path/to/your/audio/file.mp3 -s -o my-results.txt
+```
+
 ## How It Works
 
 1. **Audio Loading**: Uses librosa to load and preprocess audio files
@@ -41,36 +55,66 @@ python music-script.py path/to/your/audio/file.mp3 --verbose
 
 The script provides:
 
-### Chord Progression
+### Console Output
 - Sequential list of detected chords with timestamps
 - Format: `Chord | Start - End | Duration`
+- Chord frequency statistics
 
-### Chord Frequency
-- Percentage breakdown of how often each chord appears
-- Useful for understanding the harmonic content of the song
+### File Output (when using --save)
+- All console information saved to file
+- **Visual Timeline**: Custom chord progression visualization
+- Timeline format: `|-----|-----|-----|` where `|` marks chord changes and `-` represents duration
 
 ## Example Output
 
+### Console Display
 ```
 ============================================================
 CHORD ANALYSIS RESULTS FOR: example.mp3
 ============================================================
 
-Total Duration: 03:45
+Total Duration: 00:03.450
 
 📊 CHORD PROGRESSION:
 --------------------------------------------------
- 1. Am   | 00:00 - 00:15 | Duration: 00:15
- 2. F    | 00:15 - 00:30 | Duration: 00:15
- 3. C    | 00:30 - 00:45 | Duration: 00:15
- 4. G    | 00:45 - 01:00 | Duration: 00:15
+ 1. Am   | 00:00.000 - 00:00.863 | Duration: 00:00.863
+ 2. F    | 00:00.863 - 00:01.726 | Duration: 00:00.863
+ 3. C    | 00:01.726 - 00:02.589 | Duration: 00:00.863
+ 4. G    | 00:02.589 - 00:03.450 | Duration: 00:00.861
 
 🎵 CHORD FREQUENCY:
 ------------------------------
-Am  :  25.0% (120 frames)
-F   :  25.0% (120 frames)
-C   :  25.0% (120 frames)
-G   :  25.0% (120 frames)
+Am  :  25.0% (30 frames)
+F   :  25.0% (30 frames)
+C   :  25.0% (30 frames)
+G   :  25.0% (30 frames)
+============================================================
+```
+
+### File Output (chord-output.txt)
+```
+============================================================
+CHORD ANALYSIS RESULTS FOR: example.mp3
+============================================================
+
+Total Duration: 00:03.450
+
+📊 CHORD PROGRESSION:
+--------------------------------------------------
+ 1. Am   | 00:00.000 - 00:00.863 | Duration: 00:00.863
+ 2. F    | 00:00.863 - 00:01.726 | Duration: 00:00.863
+ 3. C    | 00:01.726 - 00:02.589 | Duration: 00:00.863
+ 4. G    | 00:02.589 - 00:03.450 | Duration: 00:00.861
+
+|-----|-----|-----|-----|
+  Am    F     C     G   
+
+🎵 CHORD FREQUENCY:
+------------------------------
+Am  :  25.0% (30 frames)
+F   :  25.0% (30 frames)
+C   :  25.0% (30 frames)
+G   :  25.0% (30 frames)
 ============================================================
 ```
 
