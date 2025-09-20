@@ -9,7 +9,8 @@ A Python script that analyzes MP3 audio files and live audio recordings to extra
 - **Chord Statistics**: Shows frequency analysis of detected chords
 - **Multiple Audio Formats**: Supports MP3, WAV, FLAC, and M4A files
 - **Live Audio Recording**: Record and analyze audio directly from your microphone
-- **Interactive Mode**: Choose between file input or live recording when no arguments provided
+- **Guitar Chord Playback**: Play back detected chords using synthesized guitar sounds
+- **Interactive Mode**: Choose between file input, live recording, or chord playback
 - **File Output**: Save results to text files with custom timeline visualization
 - **Visual Timeline**: ASCII-based chord progression timeline using `|` and `-` characters
 - **Clean Output**: Formatted results with progression timeline and statistics
@@ -50,8 +51,17 @@ python music-script.py path/to/your/audio/file.mp3 -s -o my-results.txt
 # Record live audio from microphone
 python music-script.py --live
 
-# Interactive mode (choose file or live recording)
+# Interactive mode (choose file, live recording, or playback)
 python music-script.py
+```
+
+### Guitar Chord Playback
+```bash
+# Play back chords from output file using guitar sounds
+python music-script.py --playback chord-output.txt
+
+# Or use the standalone playback script
+python guitar_playback.py chord-output.txt
 ```
 
 ## How It Works
@@ -149,6 +159,7 @@ G   :  25.0% (30 frames)
 help-me-play-music/
 ├── music-script.py          # Main script with CLI interface
 ├── ChordDetector.py         # Core chord detection class
+├── guitar_playback.py       # Guitar chord playback system
 ├── utils/                   # Utility modules
 │   ├── __init__.py
 │   └── save_to_output.py    # Output formatting functions
@@ -167,6 +178,15 @@ When using live recording mode:
 - Same chord analysis is applied to live recordings as audio files
 - Interactive prompts guide you through the process
 
+## Guitar Chord Playback Features
+
+The guitar playback system allows you to hear your detected chord progressions:
+- **Synthesized Guitar Sounds**: Uses sawtooth and square wave synthesis for guitar-like tones
+- **Accurate Timing**: Plays chords with the exact durations detected in your audio
+- **All Chord Types**: Supports all major and minor chords (24 total chord types)
+- **Multiple Usage Options**: Use via command line, interactive mode, or standalone script
+- **Real-time Playback**: Maintains proper timing between chord changes
+
 ## Requirements
 
 - Python 3.7+
@@ -175,3 +195,5 @@ When using live recording mode:
 - scipy 1.7.0+
 - sounddevice 0.4.0+ (for live recording)
 - keyboard 0.13.5+ (for live recording controls)
+- synthesizer 0.2.0+ (for guitar chord playback)
+- pyaudio 0.2.11+ (for audio synthesis)

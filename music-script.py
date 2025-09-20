@@ -18,14 +18,15 @@ def get_user_choice():
     print("Choose input mode:")
     print("1. Analyze audio file (MP3, WAV, FLAC, M4A)")
     print("2. Record live audio from microphone")
+    print("3. Play back chords from existing output file")
     
     while True:
         try:
-            choice = input("\nEnter your choice (1 or 2): ").strip()
-            if choice in ['1', '2']:
+            choice = input("\nEnter your choice (1, 2, or 3): ").strip()
+            if choice in ['1', '2', '3']:
                 return int(choice)
             else:
-                print("Please enter 1 or 2")
+                print("Please enter 1, 2, or 3")
         except KeyboardInterrupt:
             print("\nExiting...")
             sys.exit(0)
@@ -65,11 +66,55 @@ def interactive_mode():
             results = detector.analyze_mp3(file_path)
             source_name = file_path
             
-        else:
+        elif choice == 2:
             # Live recording mode
             print(f"\n🎤 Live recording mode")
             results = detector.analyze_live_audio()
             source_name = results.get('filename', 'live_recording') if results else 'live_recording'
+            
+        else:
+            # Playback mode
+            from guitar_playback import GuitarPlayback
+            
+            output_file = input("Enter path to chord output file (default: chord-output.txt): ").strip()
+            if not output_file:
+                output_file = 'chord-output.txt'
+            
+            print("🎸 Guitar Chord Playback System")
+            print("=" * 40)
+            
+            playback = GuitarPlayback()
+            try:
+                print(f"📖 Reading chord progression from: {output_file}")
+                chords = playback.parse_chord_output(output_file)
+                
+                if not chords:
+                    print("❌ No valid chords found in file")
+                    return
+                
+                print(f"✅ Found {len(chords)} chords")
+                
+                # Display chord progression
+                print("\n📊 Chord Progression:")
+                print("-" * 30)
+                for i, chord_info in enumerate(chords, 1):
+                    print(f"{i:2d}. {chord_info['chord']:4s} | {chord_info['duration']:.3f}s")
+                
+                # Ask user if they want to play
+                print("\n🎵 Ready to play! Press Enter to start (or Ctrl+C to cancel)")
+                input()
+                
+                # Play the progression
+                playback.play_progression(chords)
+                
+            except KeyboardInterrupt:
+                print("\n⏹️  Playback cancelled by user")
+            except Exception as e:
+                print(f"❌ Error: {e}")
+            finally:
+                playback.close()
+            
+            return
         
         if results:
             print_analysis_results(results, source_name)
@@ -97,8 +142,49 @@ def main():
     parser.add_argument('--output', '-o', default='chord-output.txt', help='Output file for results (default: chord-output.txt)')
     parser.add_argument('--save', '-s', action='store_true', help='Save results to output file')
     parser.add_argument('--live', '-l', action='store_true', help='Record live audio from microphone')
+    parser.add_argument('--playback', '-p', help='Play back chords from output file using guitar sounds')
     
     args = parser.parse_args()
+    
+    # Handle playback mode
+    if args.playback:
+        from guitar_playback import GuitarPlayback
+        
+        print("🎸 Guitar Chord Playback System")
+        print("=" * 40)
+        
+        playback = GuitarPlayback()
+        try:
+            print(f"📖 Reading chord progression from: {args.playback}")
+            chords = playback.parse_chord_output(args.playback)
+            
+            if not chords:
+                print("❌ No valid chords found in file")
+                return
+            
+            print(f"✅ Found {len(chords)} chords")
+            
+            # Display chord progression
+            print("\n📊 Chord Progression:")
+            print("-" * 30)
+            for i, chord_info in enumerate(chords, 1):
+                print(f"{i:2d}. {chord_info['chord']:4s} | {chord_info['duration']:.3f}s")
+            
+            # Ask user if they want to play
+            print("\n🎵 Ready to play! Press Enter to start (or Ctrl+C to cancel)")
+            input()
+            
+            # Play the progression
+            playback.play_progression(chords)
+            
+        except KeyboardInterrupt:
+            print("\n⏹️  Playback cancelled by user")
+        except Exception as e:
+            print(f"❌ Error: {e}")
+        finally:
+            playback.close()
+        
+        return
     
     # If no arguments provided, run in interactive mode
     if not args.file_path and not args.live:
