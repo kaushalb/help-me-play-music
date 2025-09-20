@@ -1,8 +1,14 @@
+# Output files
 chord-output.txt
+
+# Live recordings
+live_recordings/
+
+# Python cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 *.so
 .pytest_cache/

@@ -8,6 +8,9 @@ import librosa
 import numpy as np
 from scipy.signal import find_peaks
 from collections import Counter
+import sounddevice as sd
+import threading
+import time
 
 class ChordDetector:
     def __init__(self):
@@ -176,4 +179,91 @@ class ChordDetector:
             'progression': progression,
             'chord_counts': chord_counts,
             'total_duration': len(y) / sr
+        }
+    
+    def record_live_audio(self, duration=None, sample_rate=22050):
+        """Record live audio from microphone."""
+        print("🎤 Starting live audio recording...")
+        print("Press 'q' and Enter to stop recording")
+        
+        # Initialize recording variables
+        self.recording = True
+        self.audio_buffer = []
+        
+        def audio_callback(indata, frames, time, status):
+            if status:
+                print(f"Audio status: {status}")
+            if self.recording:
+                self.audio_buffer.extend(indata[:, 0])  # Use first channel only
+        
+        # Start audio stream
+        with sd.InputStream(callback=audio_callback, 
+                          channels=1, 
+                          samplerate=sample_rate,
+                          blocksize=1024):
+            
+            print("🔴 Recording... (type 'q' and press Enter to stop)")
+            
+            # Wait for user to press 'q'
+            while self.recording:
+                try:
+                    user_input = input().strip().lower()
+                    if user_input == 'q':
+                        self.recording = False
+                        break
+                except KeyboardInterrupt:
+                    self.recording = False
+                    break
+        
+        print("⏹️  Recording stopped")
+        
+        # Convert to numpy array
+        audio_data = np.array(self.audio_buffer, dtype=np.float32)
+        
+        if len(audio_data) == 0:
+            print("No audio recorded")
+            return None, None
+            
+        print(f"Audio recorded successfully. Duration: {len(audio_data)/sample_rate:.2f} seconds")
+        return audio_data, sample_rate
+    
+    def analyze_live_audio(self):
+        """Record and analyze live audio."""
+        # Record audio
+        y, sr = self.record_live_audio()
+        if y is None:
+            return None
+        
+        # Save recorded audio to live_recordings directory
+        import os
+        os.makedirs("live_recordings", exist_ok=True)
+        temp_filename = f"live_recordings/live_recording_{int(time.time())}.wav"
+        try:
+            import soundfile as sf
+            sf.write(temp_filename, y, sr)
+            print(f"📁 Recording saved as: {temp_filename}")
+        except ImportError:
+            print("Note: soundfile not available, recording not saved to file")
+        
+        # Extract chromagram
+        chroma = self.extract_chromagram(y, sr)
+        
+        # Detect chords
+        raw_chords = self.detect_chords_from_chroma(chroma)
+        
+        # Smooth chord progression
+        smoothed_chords = self.smooth_chord_progression(raw_chords)
+        
+        # Get final chord progression
+        progression = self.get_chord_progression(smoothed_chords)
+        
+        # Get chord statistics
+        chord_counts = Counter([c for c in smoothed_chords if c != 'N/A'])
+        
+        return {
+            'progression': progression,
+            'chord_counts': chord_counts,
+            'total_duration': len(y) / sr,
+            'source': 'live_recording',
+            'filename': temp_filename if 'temp_filename' in locals() else 'live_recording'
         }
