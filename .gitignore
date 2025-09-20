@@ -1,1 +1,8 @@
 chord-output.txt
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
